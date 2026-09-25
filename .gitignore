@@ -1,0 +1,7 @@
+# OpenSCAD ciktilari (SCAD'den uretilir, repoya girmez)
+*.stl
+*.3mf
+*.amf
+
+# OpenSCAD gecici
+*.scad.bak
