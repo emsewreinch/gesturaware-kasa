@@ -55,6 +55,7 @@ usb_agiz_derin = 2;
 floor_gap = 2.0;           // PCB alti bosluk (ayak yuksekligi)
 
 et = 2;                    // duvar kalinligi
+tavan_et = 2.6;            // kapak tavani (oyuk altinda 1.4 mm kalir)
 
 buton_cap = 12;            // ust buton deligi
 buton_x   = 0;
@@ -90,7 +91,7 @@ board_b = bd_cy + pcb_depth / 2;          // arka kenar
 
 z_rest    = et + floor_gap;               // PCB alt yuzu  (4.0)
 z_pcb_top = z_rest + pcb_thick;           // PCB ust yuzu  (5.6)
-tavan_z   = toplam_yuks - et;             // tavan ic yuzu (18.6)
+tavan_z   = toplam_yuks - tavan_et;       // tavan ic yuzu (18.0)
 
 usb_alt = z_rest + usb_z_kart - usb_bos_h / 2;   // 5.55
 usb_z0 = usb_alt;
@@ -122,18 +123,19 @@ ic_pah = max(ust_pah - et * (2 - sqrt(2)), 0.2);
 
 // -------------------------------------------------------------
 // Ust yuzey oymalari (kapak ters basildigi icin ilk katmanlarda)
-// Renk hilesi: 3. katmanda filament degistir (M600), 4. katmanda
-// geri al -> oyuklar renkli gorunur. Cok renkli yazicida "inlay".
+// Oyuklara ayri basilan renkli dolgu (inlay) parcalari oturur:
+// inlay, oyugun her kenarindan inlay_bosluk kadar kucuk basilir.
 // -------------------------------------------------------------
 
 oyma_on    = true;
-oyma_derin = 0.4;                 // 2 katman (0.2 mm katmanla)
+oyma_derin  = 1.2;                // 6 katman (0.2 mm katmanla); inlay yuksekligi de bu
+inlay_bosluk = 0.14;              // inlay her kenardan bu kadar kucuk (0.12 - 0.16)
 
 hale_r = 9;                       // buton cevresi halka (orta cizgi)
-hale_w = 0.8;
+hale_w = 1.6;                     // 0.4 nozulla dolgu 3 cizgi
 
 dalga_r   = [13, 16.5, 20];       // "(( o ))" jest dalgalari
-dalga_w   = 0.8;
+dalga_w   = 1.6;
 dalga_aci = 34;                   // her yayin yari acisi (derece)
 
 buton_pah = 0.4;                  // buton deligi ust kenar pahi
@@ -207,6 +209,7 @@ ayak_d      = 5.0;                // PCB alti ayak capi
 yazi_on   = true;
 yazi      = "GESTURAWARE";
 yazi_boy  = 3.2;
+yazi_derin = 0.4;
 yazi_y    = -9;
 yazi_font = "Liberation Sans:style=Bold";
 
@@ -314,7 +317,7 @@ module kapak_ic()
 module buton_bosluk()
 {
     translate([buton_x, buton_y, tavan_z - 0.1])
-        cylinder(h = et + 0.2, d = buton_cap);
+        cylinder(h = tavan_et + 0.2, d = buton_cap);
 
     // ust kenar pahi
     translate([buton_x, buton_y, toplam_yuks - buton_pah])
@@ -339,7 +342,7 @@ module ust_oyma_2d()
 }
 
 
-// oyma hacmi (kapaktan cikarilir; cok renkli baskida inlay parcasi)
+// oyma hacmi (kapaktan cikarilir)
 module ust_oyma()
 {
     translate([buton_x, buton_y, toplam_yuks - oyma_derin])
@@ -621,10 +624,20 @@ module vida_delikleri()
 }
 
 
+// ayri basilan renkli dolgu: oyuktan inlay_bosluk kadar kucuk, oyma_derin yuksek
+module inlay()
+{
+    translate([buton_x, buton_y, toplam_yuks - oyma_derin])
+        linear_extrude(height = oyma_derin)
+            offset(delta = -inlay_bosluk)
+                ust_oyma_2d();
+}
+
+
 module alt_yazi()
 {
     translate([0, yazi_y, -0.01])
-        linear_extrude(height = oyma_derin + 0.01)
+        linear_extrude(height = yazi_derin + 0.01)
             mirror([1, 0, 0])
                 text(yazi, size = yazi_boy, font = yazi_font,
                      halign = "center", valign = "center", spacing = 1.08);
@@ -660,7 +673,7 @@ module pcb_hayalet()
 // "kapak" / "govde" = tek parca, montaj konumunda
 // "baski"       = iki parca baski yonunde yan yana
 // "kapak_baski" / "govde_baski" = tek parca, STL icin
-// "inlay_baski" = oyma dolgusu (cok renkli baski, kapak_baski ile hizali)
+// "inlay_baski" = oyuklara bastirilan renkli dolgu parcalari (ayri baski)
 // "yok"         = hicbir sey (include ile kullanim icin)
 // =============================================================
 
@@ -680,7 +693,7 @@ module renkli_kapak()
     if (oyma_on)
         color(renk_vurgu)
             translate([0, 0, -0.02])
-                ust_oyma();
+                inlay();
 }
 
 
@@ -729,15 +742,9 @@ else if (goster == "kapak_baski")
 }
 else if (goster == "inlay_baski")
 {
-    // oyma hacmi, kapak yuzeyiyle tam hizali (0 .. oyma_derin)
-    kapak_baski_yonu()
-        intersection()
-        {
-            ust_oyma();
-
-            translate([-hx, -hy, toplam_yuks - oyma_derin])
-                cube([uzunluk, genislik, oyma_derin]);
-        }
+    // tablaya duz, Z = 0 .. oyma_derin
+    translate([0, 0, -(toplam_yuks - oyma_derin)])
+        inlay();
 }
 else if (goster == "govde_baski")
 {

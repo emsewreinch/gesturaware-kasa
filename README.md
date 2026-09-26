@@ -25,7 +25,7 @@ konnektorun kendi yuksekliginden hesaplanir (Z = 5.55 .. 8.95).
 ### Tasarim
 
 - Duz ust yuzey, 45 derece pahli ust kenar (isikta keskin bir cizgi verir)
-- Buton cevresinde hale halkasi ve iki yanda "(( o ))" jest dalgalari, 0.4 mm oyma
+- Buton cevresinde hale halkasi ve iki yanda "(( o ))" jest dalgalari: 1.6 mm genis, 1.2 mm derin oyuk + renkli dolgu
 - Kapak / govde birlesiminde 0.6 mm V-golge cizgisi; USB-C ve LED tamamen govdede, birlesim cizgisi portlari kesmiyor
 - Plan kose radiusu 8 -> 6 mm: daha "tech" gorunum
 
@@ -50,16 +50,18 @@ konnektorun kendi yuksekliginden hesaplanir (Z = 5.55 .. 8.95).
 |---|---|---|---|
 | Kapak | `kapak_baski` | ust yuzey | Dokulu PEI tabla premium mat doku verir |
 | Govde | `govde_baski` | taban | |
+| Dolgu | `inlay_baski` | duz | Vurgu renginde, oyuklara bastirilir |
 
 ```
 openscad -D 'goster="kapak_baski"' -o kapak.stl kontrolcukasa.scad
 openscad -D 'goster="govde_baski"' -o govde.stl kontrolcukasa.scad
+openscad -D 'goster="inlay_baski"' -o inlay.stl kontrolcukasa.scad
 ```
 
-**Renkli oyma (tek nozul):** 0.2 mm katmanla kapakta 0.4 mm'den sonraki ilk katmanda (3. katman)
-filament degistir (M600), bir sonraki katmanda ana renge don. Oyuklar vurgu renginde gorunur,
-ust pahta da ince bir vurgu cizgisi cikar. Cok renkli yazicida `inlay_baski` STL'ini kapakla
-ayni nesneye parca olarak ekle.
+**Renkli dolgu (inlay):** ust yuzeydeki halka ve dalgalar 1.6 mm genis, 1.2 mm derin oyuk (tavan 2.6 mm, oyuk altinda 1.4 mm kalir).
+Renkli dolgu parcalari (`inlay_baski`, 7 parca) ayri basilir ve oyuklara bastirilir: her kenardan
+0.14 mm kucuk (`inlay_bosluk`, 0.12 - 0.16 arasi ayarlanabilir): 1.32 mm genis (0.4 nozulla 3 cizgi), 1.2 mm yuksek.
+Gerekirse bir damla yapistiriciyla sabitle.
 
 ### Montaj sirasi
 
@@ -75,6 +77,7 @@ ayni nesneye parca olarak ekle.
 | `vida_d`, `havsa_d` | 2.4, 4.4 | M2 gecis deligi ve havsa capi |
 | `snap_int` | 0.4 | Kapak kilit sertligi |
 | `tirnak_x` | montaj delikleri yani | PCB bastirma tirnaklari; gerekirse `tirnak_on = false` |
+| `inlay_bosluk` | 0.14 | Dolgu parcasi her kenardan bu kadar kucuk |
 | `oyma_on`, `yazi_on` | true | Ust desen / alt yazi |
 | `pcb_goster` | false | Montaj gorunumlerinde PCB hayaleti |
 
