@@ -38,11 +38,11 @@ hole_ax = 17;              // PCB montaj delikleri X yari-araligi
 hole_ay = 19.5;            // PCB montaj delikleri Y yari-araligi
 
 usb_edge_off = 8.62;       // USB konnektorunun PCB merkezinden X kacikligi
-usb_cx       = 1;          // USB-C acikligi kasa merkezine gore +1 mm
+usb_cx       = -0.4;       // USB-C acikligi X (eski +1 mm, 1.4 mm sola alindi)
 
 usb_w     = 9.2;           // USB-C acikligi X
 usb_bos_h = 3.4;           // USB-C acikligi Z
-usb_alt   = 4;             // acikligin alt kenari (tabandan)
+usb_alt   = 3.5;           // acikligin alt kenari (tabandan; eski 4, 0.5 mm asagi)
 usb_r     = 1.7;
 
 usb_agiz_w     = 10.5;     // on agiz (kablo govdesi) flare

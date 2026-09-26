@@ -16,8 +16,9 @@ GesturAware cihazinin 3D baski kasasi (OpenSCAD).
 ## Kontrolcu surumu (`kontrolcukasa.scad`)
 
 Dis olculer degismedi: **64.74 x 53.5 x 20.6 mm** (kizakla birlikte 23.0 mm).
-PCB yerlesimi, USB-C (+1 mm kaydirilmis), 12 mm buton, arka 5 mm LED, alt sensor ve reset
-delikleri `Cihazkasaguncel.scad` ile ayni konumda.
+PCB yerlesimi, 12 mm buton, arka 5 mm LED, alt sensor ve reset
+delikleri `Cihazkasaguncel.scad` ile ayni konumda. USB-C acikligi ondan 1.4 mm sola
+(X = -0.4) ve 0.5 mm asagi (alt kenar Z = 3.5) alindi.
 
 ![Parcalar](render/02_patlatilmis.jpg)
 
