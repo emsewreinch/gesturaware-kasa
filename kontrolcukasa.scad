@@ -3,19 +3,17 @@
 //
 // Oyun kontrolcusunun arkasina takilan premium kasa.
 // Dis olculer Cihazkasaguncel.scad ile AYNI: 64.74 x 53.5 x 20.6 mm.
-// PCB, USB-C, buton, LED, sensor ve reset konumlari da ayni.
+// PCB: pcb_v1_headers_z.stl (45 x 40 x 1.6 mm, M2 delikler 39 x 34).
 //
-// 3 parca, hepsi destek (support) olmadan basilir:
+// 2 parca, ikisi de destek (support) olmadan basilir:
 //
 //   KAPAK : ust parca. 45 derece pahli ust kenar, buton cevresinde
 //           hale halkasi ve iki yanda "(( o ))" jest dalgalari (oyma).
 //           Ic dudak govdeye girer, snap toplariyla kilitlenir ve
 //           tirnaklariyla PCB'yi yukaridan bastirir.
-//   GOVDE : alt parca. USB-C, LED, sensor/reset delikleri, PCB rafi.
-//           Sol/sag alt kenarlarda kirlangic (dovetail) kizak profili.
-//   KIZAK : kontrolcunun arkasina VHB bantla yapisan ince taban.
-//           Kasa arkadan kaydirilir, onde durur, esnek parmaklar
-//           "klik" ile kilitler. Cekince cikar (sarj / reset icin).
+//   GOVDE : alt parca. USB-C, LED, sensor/reset delikleri, PCB rafi,
+//           PCB v1 montaj deliklerinin altinda ayaklar ve tabandan
+//           havsali M2 vida delikleri.
 //
 // Tum olculer mm. Z=0 kasanin (govdenin) en alti.
 // USB-C on (-Y), LED arka (+Y) duvarda.
@@ -26,23 +24,27 @@ $fs = 0.35;
 
 
 // =============================================================
-// BILESEN / PCB OLCULERI  (Cihazkasaguncel.scad ile ayni)
+// BILESEN / PCB OLCULERI  (PCB v1, pcb_v1_headers_z.stl'den)
+// PCB kasada USB kenari one (-Y) bakacak sekilde, 90 derece
+// dondurulmus durur: 40 mm kenar kasada X, 45 mm kenar Y.
 // =============================================================
 
-pcb_edge_usb = 40.5;       // PCB X boyu
-pcb_depth    = 46.5;       // PCB Y boyu
+pcb_edge_usb = 40;         // PCB X boyu (USB kenari)
+pcb_depth    = 45;         // PCB Y boyu
 pcb_thick    = 1.6;
-pcb_comp_h   = 10;         // PCB ustu maksimum komponent yuksekligi
+pcb_comp_h   = 6.6;        // PCB ustu en yuksek komponent (buton)
 
-hole_ax = 17;              // PCB montaj delikleri X yari-araligi
-hole_ay = 19.5;            // PCB montaj delikleri Y yari-araligi
+hole_ax = 17;              // PCB montaj delikleri X yari-araligi (34 mm)
+hole_ay = 19.5;            // PCB montaj delikleri Y yari-araligi (39 mm)
+pcb_hole_d = 2.2;          // PCB delik capi (M2)
 
-usb_edge_off = 8.62;       // USB konnektorunun PCB merkezinden X kacikligi
-usb_cx       = -0.4;       // USB-C acikligi X (eski +1 mm, 1.4 mm sola alindi)
+usb_edge_off = 8.76;       // USB-C merkezinin PCB merkezinden X kacikligi
+usb_cx       = -0.4;       // USB-C acikligi X (PCB bunu takip eder)
+usb_z_kart   = 3.25;       // USB-C merkezinin PCB alt yuzunden yuksekligi
+pcb_cy       = -0.7;       // PCB merkezi Y (USB-C on duvara ~0.5 mm yakin)
 
 usb_w     = 9.2;           // USB-C acikligi X
 usb_bos_h = 3.4;           // USB-C acikligi Z
-usb_alt   = 3.5;           // acikligin alt kenari (tabandan; eski 4, 0.5 mm asagi)
 usb_r     = 1.7;
 
 usb_agiz_w     = 10.5;     // on agiz (kablo govdesi) flare
@@ -50,9 +52,7 @@ usb_agiz_h     = 7.0;
 usb_agiz_r     = 2.5;
 usb_agiz_derin = 2;
 
-side_clr  = 1.5;           // PCB - ic duvar yan boslugu
-head_gap  = 3.0;           // komponent ustu bosluk
-floor_gap = 2.0;           // PCB alti bosluk
+floor_gap = 2.0;           // PCB alti bosluk (ayak yuksekligi)
 
 et = 2;                    // duvar kalinligi
 
@@ -69,25 +69,30 @@ led_z   = 10;
 
 
 // =============================================================
-// TURETILEN OLCULER  (Cihazkasaguncel.scad ile ayni formuller)
+// DIS OLCULER (Cihazkasaguncel.scad ile ayni, sabit)
 // =============================================================
 
-bd_cx   = -usb_edge_off;                  // PCB merkezi X
-board_l = bd_cx - pcb_edge_usb / 2;       // -28.87
-board_r = bd_cx + pcb_edge_usb / 2;       //  11.63
+uzunluk     = 64.74;                      // X
+genislik    = 53.5;                       // Y
+toplam_yuks = 20.6;                       // Z
 
-half_in  = max(-board_l, board_r) + side_clr;
-uzunluk  = 2 * (half_in + et);            // 64.74  (X)
-inner_y  = pcb_depth + 2 * side_clr;
-genislik = inner_y + 2 * et;              // 53.5   (Y)
 
-inner_h     = floor_gap + pcb_thick + pcb_comp_h + head_gap;
-toplam_yuks = inner_h + 2 * et;           // 20.6   (Z)
+// =============================================================
+// TURETILEN OLCULER
+// =============================================================
+
+bd_cx   = usb_cx - usb_edge_off;          // PCB merkezi X (-9.16)
+bd_cy   = pcb_cy;                         // PCB merkezi Y
+board_l = bd_cx - pcb_edge_usb / 2;
+board_r = bd_cx + pcb_edge_usb / 2;
+board_f = bd_cy - pcb_depth / 2;          // on kenar (USB tarafi)
+board_b = bd_cy + pcb_depth / 2;          // arka kenar
 
 z_rest    = et + floor_gap;               // PCB alt yuzu  (4.0)
 z_pcb_top = z_rest + pcb_thick;           // PCB ust yuzu  (5.6)
 tavan_z   = toplam_yuks - et;             // tavan ic yuzu (18.6)
 
+usb_alt = z_rest + usb_z_kart - usb_bos_h / 2;   // 5.55
 usb_z0 = usb_alt;
 usb_z1 = usb_alt + usb_bos_h;
 
@@ -136,8 +141,7 @@ buton_pah = 0.4;                  // buton deligi ust kenar pahi
 
 // -------------------------------------------------------------
 // Kapak ic dudagi + PCB bastirma tirnaklari
-// Dudak govde duvari ile PCB kenari arasindaki 1.5 mm bantta durur:
-// 0.2 bosluk + 1.0 dudak + 0.3 PCB payi.
+// Dudak govde duvari icinde, PCB ustunden 0.1 mm yukarida biter.
 // -------------------------------------------------------------
 
 dudak_et     = 1.0;
@@ -148,7 +152,7 @@ tirnak_on       = true;           // PCB bastirma tirnaklari
 tirnak_w        = 4;
 tirnak_bindirme = 0.7;            // PCB kenarinin ustune binme
 // montaj deliklerinin yanina (bakir/komponent bosluk bolgesi)
-tirnak_x = [bd_cx - hole_ax + 1, bd_cx + hole_ax + 0.6];
+tirnak_x = [bd_cx - hole_ax + 1, bd_cx + hole_ax + 1];
 
 dudak_dis_x = ix - dudak_bosluk;
 dudak_dis_y = iy - dudak_bosluk;
@@ -156,6 +160,10 @@ dudak_ic_x  = dudak_dis_x - dudak_et;
 dudak_ic_y  = dudak_dis_y - dudak_et;
 dudak_alt   = z_pcb_top + pcb_ust_pay;
 dudak_r     = ic_r - dudak_bosluk;
+
+// on dudakta centik X araligi: PCB v1 on kenarindan tasan konnektorler
+// (kasada X -18.7 .. 4.1, Z 8.9'a kadar)
+dudak_on_centik = [bd_cx - 10.5, usb_cx + 5.5];
 
 
 // -------------------------------------------------------------
@@ -173,7 +181,7 @@ raf_usb_w    = 12;                // USB konnektoru altinda raf yok
 // -------------------------------------------------------------
 
 snap_on       = true;
-snap_x        = [-20, 24];        // on ve arka duvarda X konumlari
+snap_x        = [-23, 24];        // on ve arka duvarda X konumlari (on centigin disinda)
 snap_z        = 10;
 snap_d        = 2.4;
 snap_pocket_d = 2.9;
@@ -181,35 +189,15 @@ snap_int      = 0.4;              // sikilik - artir = daha sert klik
 
 
 // -------------------------------------------------------------
-// Kizak (dovetail) profili: govdenin sol/sag alt kenarlari
-// Z=0'da kz_taban, Z=kz_h'de kz_boyun kadar iceri kacar (alttan
-// kavrama), sonra 45 derece pahla tam genislige doner.
-// Oluk on yuzden kz_dur_y'ye kadar gider; arka blok tam kalir ve
-// kizagin durdurucusu olur.
+// PCB montaji: PCB v1 deliklerinin altinda ayaklar, tabandan havsali
+// M2 vida (M2x8 havsa bas + somun PCB ustunde).
 // -------------------------------------------------------------
 
-kz_h      = 3.0;
-kz_taban  = 1.0;
-kz_boyun  = 2.2;
-kz_ust    = kz_h + kz_boyun;      // pahin bittigi Z
-kz_dur_y  = 20;                   // olugun bittigi Y (arka blok baslangici)
-
-
-// -------------------------------------------------------------
-// Kizak (kontrolcu adaptoru)
-// -------------------------------------------------------------
-
-ad_taban    = 2.4;                // taban kalinligi
-ad_bosluk   = 0.15;               // ray - govde boslugu
-ad_ray_ust  = kz_ust - 0.8;       // ray ustu: govde pahini doldurur, 0.8 mm V-cizgi kalir
-ad_sikistir = 0.3;                // taban tumsekleri: tikirtiyi alir (0 = kapali)
-ad_sensor   = true;               // sensor deligi hizasinda pencere
-
-kilit_y      = -14;               // klik kilidi Y konumu
-kilit_derin  = 0.5;               // govdedeki V-centik derinligi
-kilit_sirt   = 0.6;               // parmaktaki V-sirt yuksekligi
-parmak_l     = 16;                // esnek parmak boyu
-parmak_kesim = 0.6;               // parmak kesim araligi
+vida_on     = true;
+vida_d      = 2.4;                // M2 gecis deligi
+havsa_d     = 4.4;                // M2 havsa bas capi
+havsa_derin = 1.1;
+ayak_d      = 5.0;                // PCB alti ayak capi
 
 
 // -------------------------------------------------------------
@@ -243,19 +231,6 @@ module rdilim(l, w, r, z)
     translate([0, 0, z])
         linear_extrude(height = 0.01)
             rrect(l, w, r);
-}
-
-
-// kizak cizgisinin (dovetail) Z'ye gore yari genisligi
-function kz_lin(z) = (hx - kz_taban) - (kz_boyun - kz_taban) * z / kz_h;
-
-
-// XZ profilini Y boyunca uzatan prizma
-module xz_prizma(noktalar)
-{
-    rotate([90, 0, 0])
-        linear_extrude(height = genislik + 40, center = true)
-            polygon(noktalar);
 }
 
 
@@ -409,9 +384,9 @@ module dudak()
                     rrect(2 * ix, 2 * iy, ic_r);
         }
 
-        // USB-C konnektoru icin centik
-        translate([usb_cx - 5.5, -hy, dudak_alt - 1])
-            cube([11, 5, usb_z1 + 1 - (dudak_alt - 1)]);
+        // PCB on kenarindan tasan USB-C ve konnektor icin centik
+        translate([dudak_on_centik[0], -hy, dudak_alt - 1])
+            cube([dudak_on_centik[1] - dudak_on_centik[0], 5, usb_z1 + 1 - (dudak_alt - 1)]);
 
         // LED govdesi / flansi icin centik
         translate([led_x - 3.5, hy - 5, dudak_alt - 1])
@@ -444,12 +419,15 @@ module snap_toplari()
 // PCB'yi raf uzerine bastiran kucuk tirnaklar (ustu 45 derece)
 module pcb_tirnaklari()
 {
-    y_uc = pcb_depth / 2 - tirnak_bindirme;
-    y_kok = dudak_ic_y + 0.01;
     h0 = 0.2;
 
-    for (tx = tirnak_x, m = [0, 1])
-        mirror([0, m, 0])
+    // sy: -1 on kenar, +1 arka kenar
+    for (tx = tirnak_x, sy = [-1, 1])
+    {
+        y_kok = dudak_ic_y + 0.01;
+        y_uc  = sy * (sy < 0 ? board_f : board_b) - tirnak_bindirme;
+
+        mirror([0, sy < 0 ? 1 : 0, 0])
             translate([tx, 0, 0])
                 rotate([90, 0, 90])
                     linear_extrude(height = tirnak_w, center = true)
@@ -459,6 +437,7 @@ module pcb_tirnaklari()
                             [y_uc,  dudak_alt + h0],
                             [y_kok, dudak_alt + h0 + (y_kok - y_uc)]
                         ]);
+    }
 }
 
 
@@ -478,18 +457,22 @@ module govde()
                 govde_ic();
             }
 
-            // raf, kizak bolgesinde dis yuzeyden tasmasin
             intersection()
             {
                 pcb_raf();
                 govde_dis();
             }
+
+            if (vida_on)
+                pcb_ayaklari();
         }
 
         usb_bosluk();
         led_delik();
         snap_cepleri();
-        kilit_centikleri();
+
+        if (vida_on)
+            vida_delikleri();
 
         // sensor deligi
         translate([0, 0, -1])
@@ -507,66 +490,26 @@ module govde()
 
 module govde_dis()
 {
-    difference()
+    hull()
     {
-        hull()
-        {
-            // alt: on/arka kenarlarda pah
-            rdilim(uzunluk, genislik - 2 * alt_pah, kose_r, 0);
+        // alt kenar pahi
+        rdilim(uzunluk - 2 * alt_pah, genislik - 2 * alt_pah, kose_r - alt_pah, 0);
 
-            translate([0, 0, alt_pah])
-                linear_extrude(height = ek_z - ek_pah - alt_pah)
-                    rrect(uzunluk, genislik, kose_r);
+        translate([0, 0, alt_pah])
+            linear_extrude(height = ek_z - ek_pah - alt_pah)
+                rrect(uzunluk, genislik, kose_r);
 
-            // ust: birlesim V-olugunun alt yarisi
-            rdilim(uzunluk - 2 * ek_pah, genislik - 2 * ek_pah, kose_r - ek_pah, ek_z - 0.01);
-        }
-
-        kizak_olugu();
-    }
-}
-
-
-// sol/sag kizak oluklari (govdeden cikarilan hacim)
-module kizak_olugu()
-{
-    difference()
-    {
-        translate([-hx - 5, -hy - 5, -1])
-            cube([uzunluk + 10, kz_dur_y + hy + 5, kz_ust + 1]);
-
-        xz_prizma([
-            [-kz_lin(-1), -1],
-            [-kz_lin(kz_h), kz_h],
-            [-(hx + 5), kz_ust + 5],
-            [ (hx + 5), kz_ust + 5],
-            [ kz_lin(kz_h), kz_h],
-            [ kz_lin(-1), -1]
-        ]);
+        // ust: birlesim V-olugunun alt yarisi
+        rdilim(uzunluk - 2 * ek_pah, genislik - 2 * ek_pah, kose_r - ek_pah, ek_z - 0.01);
     }
 }
 
 
 module govde_ic()
 {
-    intersection()
-    {
-        translate([0, 0, et])
-            linear_extrude(height = ek_z + 5)
-                rrect(2 * ix, 2 * iy, ic_r);
-
-        // kizak bolgesinde ic duvar, dis profile paralel (et kadar iceride)
-        xz_prizma([
-            [-(kz_lin(0) - et), 0],
-            [-(kz_lin(kz_h) - et), kz_h],
-            [-ix, kz_ust],
-            [-ix, toplam_yuks + 5],
-            [ ix, toplam_yuks + 5],
-            [ ix, kz_ust],
-            [ (kz_lin(kz_h) - et), kz_h],
-            [ (kz_lin(0) - et), 0]
-        ]);
-    }
+    translate([0, 0, et])
+        linear_extrude(height = ek_z + 5)
+            rrect(2 * ix, 2 * iy, ic_r);
 
     // ust ic kenarda giris pahi: kapak dudagi kolay oturur
     hull()
@@ -591,12 +534,12 @@ module pcb_raf()
                         square([board_r + raf_bindirme + hx + 1, genislik + 2]);
                 }
 
-                translate([board_l + raf_bindirme, -pcb_depth / 2 + raf_bindirme])
+                translate([board_l + raf_bindirme, board_f + raf_bindirme])
                     square([pcb_edge_usb - 2 * raf_bindirme, pcb_depth - 2 * raf_bindirme]);
 
                 // USB konnektoru altinda raf yok
                 translate([usb_cx - raf_usb_w / 2, -hy - 1])
-                    square([raf_usb_w, hy + 1 - (pcb_depth / 2 - 3)]);
+                    square([raf_usb_w, board_f + 3 + hy + 1]);
             }
 }
 
@@ -650,29 +593,31 @@ module snap_cepleri()
 }
 
 
-// kizak yanlarinda dikey V-centik (kizaktaki parmak buraya oturur)
-module v_prizma(x_fn_ofs, derin, ek, y0, z0, z1, s)
-{
-    hull()
-        for (z = [z0, z1])
-        {
-            x = kz_lin(z) + x_fn_ofs;
+function pcb_delikleri() =
+    [for (sx = [-1, 1], sy = [-1, 1]) [bd_cx + sx * hole_ax, bd_cy + sy * hole_ay]];
 
-            translate([0, 0, z])
-                linear_extrude(height = 0.01)
-                    polygon([
-                        [s * (x - derin), y0],
-                        [s * (x + ek), y0 - (derin + ek)],
-                        [s * (x + ek), y0 + (derin + ek)]
-                    ]);
-        }
+
+// PCB'nin oturdugu ayaklar (tabandan PCB altina, 2 mm)
+module pcb_ayaklari()
+{
+    for (p = pcb_delikleri())
+        translate([p[0], p[1], et - 0.01])
+            cylinder(h = z_rest - et + 0.01, d = ayak_d, $fn = 40);
 }
 
 
-module kilit_centikleri()
+// tabandan havsali M2 gecis delikleri
+module vida_delikleri()
 {
-    for (s = [-1, 1])
-        v_prizma(0, kilit_derin, 1, kilit_y, -0.5, kz_h, s);
+    for (p = pcb_delikleri())
+        translate([p[0], p[1], 0])
+        {
+            translate([0, 0, -1])
+                cylinder(h = z_rest + 2, d = vida_d, $fn = 32);
+
+            translate([0, 0, -0.01])
+                cylinder(h = havsa_derin + 0.01, d1 = havsa_d, d2 = vida_d, $fn = 40);
+        }
 }
 
 
@@ -687,130 +632,21 @@ module alt_yazi()
 
 
 // =============================================================
-// KIZAK (KONTROLCU ADAPTORU)
-//
-// Kontrolcunun arkasina VHB bantla yapisir. Govde arkadan (+Y)
-// kaydirilir; govdenin tam arka blogu raylarin arka ucuna dayanir
-// (kablo cekilince kasa one kacamaz). Raylardaki esnek parmaklarin
-// V-sirtlari govdedeki centiklere "klik" diye oturur.
-// =============================================================
-
-module kizak()
-{
-    difference()
-    {
-        union()
-        {
-            // taban
-            translate([0, 0, -ad_taban])
-                linear_extrude(height = ad_taban)
-                    rrect(uzunluk, genislik, kose_r);
-
-            // raylar
-            intersection()
-            {
-                linear_extrude(height = ad_ray_ust)
-                    rrect(uzunluk, genislik, kose_r);
-
-                translate([-hx - 1, -hy - 1, -1])
-                    cube([uzunluk + 2, kz_dur_y - ad_bosluk + hy + 1, ad_ray_ust + 2]);
-            }
-        }
-
-        // ray kanali: govdenin kirlangic profili + 45 derece pahi, bosluklu
-        pah_ofs = ad_bosluk * sqrt(2);
-
-        xz_prizma([
-            [-(kz_lin(-0.01) + ad_bosluk), -0.01],
-            [-(kz_lin(kz_h) + ad_bosluk), kz_h],
-            [-(hx - kz_boyun + pah_ofs), kz_h],
-            [-(hx - kz_boyun + pah_ofs + 10), kz_h + 10],
-            [ (hx - kz_boyun + pah_ofs + 10), kz_h + 10],
-            [ (hx - kz_boyun + pah_ofs), kz_h],
-            [ (kz_lin(kz_h) + ad_bosluk), kz_h],
-            [ (kz_lin(-0.01) + ad_bosluk), -0.01]
-        ]);
-
-        parmak_kesimleri();
-
-        if (ad_sensor)
-            translate([0, 0, -ad_taban - 1])
-                cylinder(h = ad_taban + 2, d = sensor_cap + 2);
-    }
-
-    kilit_sirtlari();
-
-    if (ad_sikistir > 0)
-        sikistirma_tumsekleri();
-}
-
-
-// esnek parmak: kok arkada, serbest uc onde. Ray + tabanin dis
-// seridi olarak bed'e kadar iner; yana (X) esner.
-module parmak_kesimleri()
-{
-    y_uc  = kilit_y - 2.5;
-    y_kok = y_uc + parmak_l;
-
-    for (s = [-1, 1])
-    {
-        // serbest uc: enine kesim
-        translate([s > 0 ? ix - parmak_kesim - 0.5 : -hx - 1, y_uc - parmak_kesim, -ad_taban - 1])
-            cube([hx - ix + parmak_kesim + 1.5, parmak_kesim, ad_taban + ad_ray_ust + 2]);
-
-        // tabandan ayiran boyuna kesim
-        translate([s > 0 ? ix - parmak_kesim : -ix, y_uc - parmak_kesim, -ad_taban - 1])
-            cube([parmak_kesim, y_kok - y_uc + parmak_kesim, ad_taban + 1.01]);
-    }
-}
-
-
-module kilit_sirtlari()
-{
-    for (s = [-1, 1])
-        intersection()
-        {
-            // sirt: ray yuzeyinden kanala dogru cikar, tabani raya gomulu
-            v_prizma(ad_bosluk, kilit_sirt, 0.3, kilit_y, 0.3, kz_h - 0.3, s);
-
-            // sadece parmak uzerinde kalsin
-            translate([s > 0 ? 0 : -hx, kilit_y - 3, 0])
-                cube([hx, 6, kz_h]);
-        }
-}
-
-
-module sikistirma_tumsekleri()
-{
-    for (p = [[16, -19], [-16, -19], [16, 12], [-16, 12]])
-        translate([p[0], p[1], -0.05])
-            intersection()
-            {
-                scale([1.2, 2.5, ad_sikistir + 0.05])
-                    sphere(r = 1, $fn = 32);
-
-                translate([-5, -5, 0])
-                    cube([10, 10, 5]);
-            }
-}
-
-
-// =============================================================
 // PCB HAYALETI (sadece gorsel kontrol icin)
 // =============================================================
 
 module pcb_hayalet()
 {
     color([0.05, 0.35, 0.2, 0.9])
-        translate([board_l, -pcb_depth / 2, z_rest])
+        translate([board_l, board_f, z_rest])
             cube([pcb_edge_usb, pcb_depth, pcb_thick]);
 
     color([0.9, 0.9, 0.9, 0.35])
-        translate([board_l + 1, -pcb_depth / 2 + 1, z_pcb_top])
+        translate([board_l + 1, board_f + 1, z_pcb_top])
             cube([pcb_edge_usb - 2, pcb_depth - 2, pcb_comp_h]);
 
     color("Silver")
-        translate([usb_cx - 4.47, -pcb_depth / 2 - 0.7, (usb_z0 + usb_z1) / 2 - 1.6])
+        translate([usb_cx - 4.47, board_f - 1.07, (usb_z0 + usb_z1) / 2 - 1.6])
             cube([8.94, 7.35, 3.2]);
 }
 
@@ -818,13 +654,12 @@ module pcb_hayalet()
 // =============================================================
 // GORUNUM SECICI
 //
-// "montaj"      = kasa kizaga takili (varsayilan)
-// "kasa"        = kapak + govde (kizaksiz)
+// "montaj"      = kapak + govde (varsayilan)
 // "patlatilmis" = parcalar ayrik, ust uste
 // "kesit"       = montajin X=... kesiti (ic yapi kontrolu)
-// "kapak" / "govde" / "kizak" = tek parca, montaj konumunda
-// "baski"       = uc parca baski yonunde yan yana
-// "kapak_baski" / "govde_baski" / "kizak_baski" = tek parca, STL icin
+// "kapak" / "govde" = tek parca, montaj konumunda
+// "baski"       = iki parca baski yonunde yan yana
+// "kapak_baski" / "govde_baski" = tek parca, STL icin
 // "inlay_baski" = oyma dolgusu (cok renkli baski, kapak_baski ile hizali)
 // "yok"         = hicbir sey (include ile kullanim icin)
 // =============================================================
@@ -835,7 +670,6 @@ pcb_goster = false;          // montaj gorunumlerinde PCB hayaleti
 
 renk_kapak = [0.16, 0.17, 0.19];
 renk_govde = [0.24, 0.25, 0.28];
-renk_kizak = [0.10, 0.10, 0.11];
 renk_vurgu = [0.00, 0.85, 1.00];
 
 
@@ -866,22 +700,10 @@ else if (goster == "govde")
 {
     color(renk_govde) govde();
 }
-else if (goster == "kizak")
-{
-    color(renk_kizak) kizak();
-}
-else if (goster == "kasa")
-{
-    renkli_kapak();
-    color(renk_govde) govde();
-
-    if (pcb_goster) pcb_hayalet();
-}
 else if (goster == "patlatilmis")
 {
     translate([0, 0, 22]) renkli_kapak();
     color(renk_govde) govde();
-    translate([0, 0, -14]) color(renk_kizak) kizak();
 
     if (pcb_goster) translate([0, 0, 9]) pcb_hayalet();
 }
@@ -893,7 +715,6 @@ else if (goster == "kesit")
         {
             renkli_kapak();
             color(renk_govde) govde();
-            color(renk_kizak) kizak();
         }
 
         translate([-hx - 5, 0, -10])
@@ -922,10 +743,6 @@ else if (goster == "govde_baski")
 {
     govde();
 }
-else if (goster == "kizak_baski")
-{
-    translate([0, 0, ad_taban]) kizak();
-}
 else if (goster == "yok")
 {
     // hicbir sey cizme (include ile kullanim / testler icin)
@@ -934,14 +751,12 @@ else if (goster == "baski")
 {
     translate([-(uzunluk + 6), 0, 0]) color(renk_kapak) kapak_baski_yonu() kapak();
     color(renk_govde) govde();
-    translate([uzunluk + 6, 0, ad_taban]) color(renk_kizak) kizak();
 }
 else
 {
-    // montaj: kasa kizaga takili
+    // montaj
     renkli_kapak();
     color(renk_govde) govde();
-    color(renk_kizak) kizak();
 
     if (pcb_goster) pcb_hayalet();
 }
@@ -952,5 +767,5 @@ else
 // =============================================================
 
 echo(str("KASA DIS: ", uzunluk, " X ", genislik, " X ", toplam_yuks, " mm"));
-echo(str("KIZAKLA TOPLAM YUKSEKLIK: ", toplam_yuks + ad_taban, " mm"));
-echo(str("PCB X = [", board_l, " .. ", board_r, "]  USB X = ", usb_cx));
+echo(str("PCB X = [", board_l, " .. ", board_r, "]  Y = [", board_f, " .. ", board_b,
+         "]  USB X = ", usb_cx, "  USB Z = [", usb_z0, " .. ", usb_z1, "]"));
